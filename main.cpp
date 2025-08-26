@@ -44,8 +44,21 @@ int main() {
     InitWindow(screenWidth, screenHeight, "PinBall Game");
     SetTargetFPS(60);
 
-    Ball ball = { {140, 80}, 10.0f, {120.0f, 0.0f}};
-    Rectangle table = { 100, 50, 600, 500 };
+
+
+
+    float tableW = screenWidth * 0.6f;
+    float tableH = screenHeight * 0.9f;
+    float tablex = (screenWidth - tableW) / 2.0f;
+    float bottomMargin = 30.0f;
+    float tabley = screenHeight - tableH - bottomMargin;
+
+    Rectangle table = { tablex, tabley, tableW, tableH };
+    
+
+    float spawnBallX = GetRandomValue((int)table.x * 0.5f, (int) table.x * 1.5f);
+    float spawnBallY = table.height * 0.1f;
+    Ball ball = { {spawnBallX, spawnBallY}, 10.0f, {120.0f, 0.0f}};
 
     b2WorldId worldId = CreateWorld(9.81f);
 
@@ -59,21 +72,23 @@ int main() {
     ////
     ////
 
-    const float Obstacle_W = 120.0f;
-    const float Obstacle_H = 16.0f;
-    float halfW_m = px_to_m(Obstacle_W/2);
-    float halfH_m = px_to_m(Obstacle_H/2);
+    float slantLength = table.width * 0.22f;
+    float slantThickness = fmaxf(table.width * 0.03f, 12.0f);
+    float sideMargin = table.width * 0.07f;
+    float slantMarginBottom = table.height * 0.25f;
 
+    float slantCenterY = table.y + table.height - slantMarginBottom;
 
-    float ObstacleCenterY = table.y + table.height - 150.0f + Obstacle_H/2;
+    float slant1CenterX = table.x + sideMargin + slantLength * 0.5f;
+    float slant2CenterX = table.x + table.width - sideMargin - slantLength * 0.5f;
 
     Obstacle slant1 = { 
-        {table.x + 40.0f + Obstacle_W/2.0f, ObstacleCenterY, Obstacle_W, Obstacle_H}, 
+        {slant1CenterX, slantCenterY, slantLength, slantThickness }, 
         0, 
         -25.0f
     };
     Obstacle slant2 = { 
-        {table.x + table.width - 40.0f - Obstacle_W/2.0f, ObstacleCenterY, Obstacle_W, Obstacle_H},
+        {slant2CenterX, slantCenterY, slantLength, slantThickness },
         0, 
         25.0f
     };
@@ -90,6 +105,7 @@ int main() {
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
+        DrawFPS(10, 10);
         DrawText("Welcome to PinBall Game!", 190, 200, 20, LIGHTGRAY);
         DrawRectangleRec(table, DARKBLUE);
         DrawRectangleLinesEx(table, 5, RAYWHITE);
@@ -102,8 +118,8 @@ int main() {
         b2Vec2 slant1Pos = b2Body_GetPosition(slantBody1);
         float slant1Angle = b2Rot_GetAngle(b2Body_GetRotation(slantBody1));
         DrawRectanglePro(
-            (Rectangle){ m_to_px(slant1Pos.x), m_to_px(slant1Pos.y), Obstacle_W, Obstacle_H },
-            (Vector2){ Obstacle_W/2, Obstacle_H/2 },
+            (Rectangle){ m_to_px(slant1Pos.x), m_to_px(slant1Pos.y), slant1.rect.width, slant1.rect.height },
+            (Vector2){ slant1.rect.width * 0.5f, slant1.rect.height * 0.5f },
             slant1Angle * RAD2DEG,
             GRAY
         );
@@ -111,8 +127,8 @@ int main() {
         b2Vec2 slant2Pos = b2Body_GetPosition(slantBody2);
         float slant2Angle = b2Rot_GetAngle(b2Body_GetRotation(slantBody2));
         DrawRectanglePro(
-            (Rectangle){ m_to_px(slant2Pos.x), m_to_px(slant2Pos.y), Obstacle_W, Obstacle_H },
-            (Vector2){ Obstacle_W/2, Obstacle_H/2 },
+            (Rectangle){ m_to_px(slant2Pos.x), m_to_px(slant2Pos.y), slant2.rect.width, slant2.rect.height },
+            (Vector2){ slant2.rect.width * 0.5f, slant2.rect.height * 0.5f },
             slant2Angle * RAD2DEG,
             GRAY
         );
