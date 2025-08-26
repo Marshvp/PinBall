@@ -3,6 +3,7 @@
 #include "math.h"
 #include "box2d/box2d.h"
 #include "createB2bodies.h"
+#include <ctime>
 
 
 
@@ -43,6 +44,7 @@ int main() {
     const int screenHeight = 600;
     InitWindow(screenWidth, screenHeight, "PinBall Game");
     SetTargetFPS(60);
+    srand((unsigned int)time(NULL));
 
 
 
@@ -55,15 +57,17 @@ int main() {
 
     Rectangle table = { tablex, tabley, tableW, tableH };
     
+    Ball ball = { {0, 0}, 10.0f, {120.0f, 0.0f}};
 
-    float spawnBallX = GetRandomValue((int)table.x * 0.5f, (int) table.x * 1.5f);
-    float spawnBallY = table.height * 0.1f;
-    Ball ball = { {spawnBallX, spawnBallY}, 10.0f, {120.0f, 0.0f}};
+    int minX = (int)(table.x + ball.radius);
+    int maxX = (int)(table.x + table.width - ball.radius);
+    float spawnBallX = (float)GetRandomValue(minX, maxX);
+    float spawnBallY = table.y + ball.radius;
+    ball.center = { spawnBallX , spawnBallY};
+
+
 
     b2WorldId worldId = CreateWorld(9.81f);
-
-
-
     b2BodyId ballBody = CreateDynamicBall(worldId, ball.center, ball.radius, 1.0f, 0.02f, 0.92f);
 
     CreateTableWalls(worldId, table);
